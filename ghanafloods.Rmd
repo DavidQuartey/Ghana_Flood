@@ -1,0 +1,141 @@
+---
+title: "Ghana Floods"
+author: "[David Quartey](twitter.com/DaveQuartey)"
+date: "27 Aug 2016"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r load_packages, include=FALSE}
+library(knitr)
+library(ggplot2)
+library(ggmap)
+library(gganimate)
+knitr::opts_chunk$set(fig.width=7, fig.height=5, 
+                      warning=FALSE, message=FALSE)
+```
+Ghana has always been getting flooded ([which I wrote about here](https://medium.com/@DaveQuartey/like-accra-other-places-are-being-flooded-where-e1c67b90d5b7)), be it the Capital city or other cities but Accra has mostly been the only area getting attention. This compelled Green Ghanaian to create a [Ghana Flood League Table](greenghanaian.org/blog-details.php?id=44) to keep track of all the areas in the country getting flooded. 
+
+I thought, could the league table be visualised to give another perspective? How would each flooded area look on the Map?
+
+![Ghana Floods GIF](file1ce037965c4d.gif)
+
+Here is how I created it.
+ 
+ Before we start, there are a number of things we will need:
+ 
+ + Flooding data
+ + Packages
+ 
+
+Lets load the R packages we will need:
+```
+library(ggmap)
+library(ggplot2)
+library(gganimate)
+```
+`ggmap` is what we will use to pull the Ghana Map from google.
+`ggplot2` to plot the points and `gganimate` to animate.
+
+### Data
+[Green Ghanaian](http://greenghanaian.org/blog-details.php?id=44) did an amazing job of putting together a Ghana Flood League Table so I placed it in a `.csv` file [here](https://raw.githubusercontent.com/DavidQuartey/Ghana_Flood/master/ghanafloods_data.csv).
+
+Download it and lets get our hands dirty.
+
+We will import the .csv file into R using the `read.csv()` function.
+
+```{r import_data}
+g <- read.csv("C:/R/ghanafloods.csv")
+```
+What this does is, it pulls the data from the location stated. Here, my path is on `C:` drive, in `R` folder, where the flood data `ghanafloods.csv` can be found. So set the path based on where you save your downloaded data.
+
+```{r see_data}
+head(g)
+```
+
+We then convert the date in the data to an R recognizable format:
+```{r convert_date}
+g$date <- as.Date(g$date, format = "%d/%m/%Y")
+head(g)
+```
+
+Order or arrange the flood data through its date.
+```{r arrange_date}
+g <- g[order(g$date),]
+head(g)
+```
+
+### Ghana Map
+We'll use the `ggmap` library to pull the Ghana map into R. 
+First, lets load the `ggmap` package into our workspace together with the `ggplot2` package because ggmap depends on it.
+
+```
+library(ggplot2)
+library(ggmap)
+```
+
+We now import the Ghana map using the `get_map()` function and wrap it in `ggmap()` to plot.
+
+```{r get_map}
+p <- ggmap(get_map("Ghana", zoom = 7))
+print(p)
+```
+
+In `get_map()`, we set the argument location as "Ghana" and zoom in or out of that specified location with zoom argument. `zoom = 7` works fine. You can play around with it using numbers ranging from 3(zoomout) to 21(zoomin).
+
+### Plot!
+Now that we have our Ghana Map in R, it's time to plot!
+
+We want to plot the *points* on the map. This can be done using `geom_point()`. The x axis becomes the longitude and the y axis becomes the latitube.
+```{r plot_point1}
+p + geom_point(data = g, aes(x = lon, y = lat))
+```
+
+We could color the points using the `col` argument in the aesthetics function, with the `scale_color_manual()` used to override the default point color or to change the colour.
+```{r plot_point2}
+p + geom_point(data = g, aes(x = lon, y = lat, col = Legend)) + 
+scale_color_manual(values ="red1")
+```
+
+We could further increase the point size.
+```{r plot_point3}
+p + geom_point(data = g, aes(x = lon, y = lat, col = Legend), size = 7) + scale_color_manual(values ="red1")
+```
+
+We then make the points a little more transparent by assigning it with an alpha value. This is done to make it visible when points overlap. `alpha = 0.3` works fine here.
+```{r plot_point4}
+p + geom_point(data = g, aes(x = lon, y = lat, col = Legend), size = 7, alpha = 0.3) + scale_color_manual(values ="red1")
+```
+
+A title is needed. 
+```{r plot_point5}
+p + geom_point(data = g, aes(x = lon, y = lat, col = Legend), size = 7, alpha = 0.3) + scale_color_manual(values ="red1") + labs(title = "Ghana Floods from March, 2016 - July, 2016 \n")
+```
+
+### Lets do some Animation, shall we?
+Before we start we'll need to have either [GraphicsMagick](http://www.graphicsmagick.org/) or [ImageMagick](http://www.imagemagick.org/script/index.php) installed for animations.
+
+Regardless of the one you choose to install, make sure it is in your PATH so that you don't run into problems when using it in R.
+
+Also we would need to insert the `cumulative` and `frame` arguments in our plot aethetics.
+Our arguments are `cumulative` = TRUE which will allows R to biuld up on the points it plots. 
+`frame = date` tells R to change the animation frame by the date column, thats why it's important to change the date to an R-readable format here.
+```{r plot_point6}
+p <- p + geom_point(data = g, aes(x = lon, y = lat, frame = date, col = Legend,
+                                  cumulative = TRUE), size = 7, alpha = 0.3) + scale_color_manual(values ="red1") + labs(title = "Ghana Floods from March, 2016 - July, 2016 \n")
+```
+
+
+```
+#convert = "im convert" if using ImageMagick or convert = "gm convert" if using GraphicMagick
+gg_animate(p, outfile = "outfile.gif", convert = "gm convert", ani.width = 700, title_frame = TRUE)
+```
+
+![Ghana Floods GIF](file1ce037965c4d.gif)
+
+And viola!
+
+
+All the code used for this post can be found on my github [here](https://github.com/DavidQuartey/Ghana_Flood/blob/master/ghanafloods.R).
