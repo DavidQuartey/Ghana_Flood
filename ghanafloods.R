@@ -28,5 +28,5 @@ p <- p + geom_point(data = ghanafloods, aes(x = lon, y = lat,
 print(p)
 
 #Make Flood GIF
-gg_animate(p, outfile = "outfile.html", convert = "gm convert", 
+gg_animate(p, outfile = "outfile.gif", convert = "gm convert", 
            ani.width = 700, title_frame = TRUE)
