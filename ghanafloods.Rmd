@@ -13,16 +13,14 @@ library(knitr)
 library(ggplot2)
 library(ggmap)
 library(gganimate)
+setwd("C:/R/ghanafloods")
 knitr::opts_chunk$set(fig.width=7, fig.height=5, 
                       warning=FALSE, message=FALSE)
 ```
-Ghana has always been getting flooded ([which I wrote about here](https://medium.com/@DaveQuartey/like-accra-other-places-are-being-flooded-where-e1c67b90d5b7)), be it the Capital city or other cities but Accra has mostly been the only area getting attention. This compelled Green Ghanaian to create a [Ghana Flood League Table](greenghanaian.org/blog-details.php?id=44) to keep track of all the areas in the country getting flooded. 
-
-I thought, could the league table be visualised to give another perspective? How would each flooded area look on the Map?
+Ghana has always been getting flooded, but it seems that only floods in Accra are getting attention. I wrote about it [here](https://medium.com/@DaveQuartey/like-accra-other-places-are-being-flooded-where-e1c67b90d5b7), and the key visualization was an animated map showing the floods in Ghana, and built in R. In this post, I document how I did it, hopefully you can do one also!
 
 ![Ghana Floods GIF](file1ce037965c4d.gif)
 
-Here is how I created it.
  
  Before we start, there are a number of things we will need:
  
@@ -47,9 +45,9 @@ Download it and lets get our hands dirty.
 We will import the .csv file into R using the `read.csv()` function.
 
 ```{r import_data}
-g <- read.csv("C:/R/ghanafloods.csv")
+g <- read.csv("ghanafloods_data.csv")
 ```
-What this does is, it pulls the data from the location stated. Here, my path is on `C:` drive, in `R` folder, where the flood data `ghanafloods.csv` can be found. So set the path based on where you save your downloaded data.
+What this does is, it pulls the data from the location stated into R.
 
 ```{r see_data}
 head(g)
