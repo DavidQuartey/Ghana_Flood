@@ -5,7 +5,7 @@ library(gganimate)
 
 
 #Import Data into R
-ghanafloods <- read.csv("C:/R/ghanafloods.csv")
+ghanafloods <- read.csv("ghanafloods_data.csv")
 
 #Make date R-readable
 ghanafloods$date <- as.Date(ghanafloods$date, format = "%d/%m/%Y")
